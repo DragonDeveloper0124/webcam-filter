@@ -24,14 +24,15 @@ class Media extends Component {
     const { outputRef, onPlaying } = this.props
     if (outputRef) outputRef(this.media)
 
-    this.media.addEventListener("playing", this.handleMediaResize)
+    this.media.addEventListener("resize", this.handleMediaResize)
     if (onPlaying) this.media.addEventListener("playing", onPlaying)
+
     navigator.mediaDevices.getUserMedia({ video: true }).then(this.handleStream)
   }
 
   componentWillUnmount() {
     const { onPlaying } = this.props
-    this.media.removeEventListener("playing", this.handleMediaResize)
+    this.media.removeEventListener("resize", this.handleMediaResize)
     if (onPlaying) this.media.removeEventListener("playing", onPlaying)
   }
 
@@ -45,9 +46,10 @@ class Media extends Component {
   }
 
   handleMediaResize = () => {
-    const { onResize, media } = this.props
+    const { onResize } = this.props
     if (onResize)
       onResize({
+        media: this.media,
         width: this.media.clientWidth,
         height: this.media.clientHeight
       })
