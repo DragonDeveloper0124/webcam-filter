@@ -23,16 +23,18 @@ class Renderer extends Component {
       width: 1280,
       height: 720
     }
+    this.scene = null
+    this.renderer = null
+    this.cam = null
+    this.camCtrl = null
+    this.tex = null
     this.videoPlane = null
   }
 
   componentDidMount() {
-    const { canvas } = this
-    this.scene = new Scene()
-    this.renderer = new WebGLRenderer({ antialias: true, canvas })
-    this.setupCamera()
-    this.updateSize()
     window.addEventListener("resize", this.updateSize)
+    this.init()
+    this.renderLoop()
   }
 
   componentWillUnmount() {
@@ -62,14 +64,21 @@ class Renderer extends Component {
     )
   }
 
-  draw() {
+  renderLoop = () => {
     this.tex.needsUpdate = true
     this.camCtrl.update()
     this.renderer.render(this.scene, this.cam)
+    requestAnimationFrame(this.renderLoop)
   }
 
-  init(buffer) {
-    this.tex = new Texture(buffer)
+  init() {
+    const { canvas } = this
+    this.scene = new Scene()
+    this.renderer = new WebGLRenderer({ antialias: true, canvas })
+    this.setupCamera()
+    this.updateSize()
+
+    this.tex = new Texture(this.props.media)
     this.tex.minFilter = THREE.LinearFilter
     this.tex.magFilter = THREE.LinearFilter
     const { gridSize } = this.props

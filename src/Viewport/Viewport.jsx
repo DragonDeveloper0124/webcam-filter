@@ -19,33 +19,23 @@ const Wrapper = styled.div`
 class Viewport extends Component {
   constructor(props) {
     super(props)
-    this.setMediaRef = el => {
-      this.media = el
+
+    this.setMediaRef = media => {
+      this.setState({ media })
     }
-    this.setRendererRef = comp => {
-      this.renderer = comp
-    }
+
     this.state = {
-      gridSize: 64
+      gridSize: 128,
+      media: null
     }
-  }
-
-  componentDidMount() {
-    this.renderer.init(this.media)
-    this.draw()
-  }
-
-  draw = () => {
-    this.renderer.draw()
-    requestAnimationFrame(this.draw)
   }
 
   render() {
-    const { gridSize } = this.state
+    const { gridSize, media } = this.state
     return (
       <Wrapper>
         <MediaProcessor size={gridSize} outputRef={this.setMediaRef} />
-        <Renderer gridSize={gridSize} ref={this.setRendererRef} />
+        {media ? <Renderer gridSize={gridSize} media={media} /> : null}
       </Wrapper>
     )
   }

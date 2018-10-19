@@ -2,7 +2,7 @@ import { Component } from "react"
 import PropTypes from "prop-types"
 
 class FilterInstance extends Component {
-  init() {
+  componentDidMount() {
     const { media, outputRef } = this.props
     if (outputRef) outputRef(media)
   }
