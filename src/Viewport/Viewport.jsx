@@ -1,7 +1,10 @@
 import React, { Component } from "react"
+import { connect } from "react-redux"
 import styled from "styled-components"
 import Renderer from "./Renderer"
 import MediaProcessor from "../MediaProcessor"
+
+import { mainActions } from "../_actions"
 
 const Wrapper = styled.div`
   width: 100%;
@@ -24,21 +27,23 @@ class Viewport extends Component {
       this.setState({ media })
     }
 
-    this.state = {
-      gridSize: 128,
-      media: null
-    }
+    this.state = { media: null }
   }
 
   render() {
-    const { gridSize, media } = this.state
+    const { gridSize } = this.props
+    const { media } = this.state
     return (
       <Wrapper>
         <MediaProcessor size={gridSize} outputRef={this.setMediaRef} />
-        {media ? <Renderer gridSize={gridSize} media={media} /> : null}
+        {media ? <Renderer media={media} /> : null}
       </Wrapper>
     )
   }
 }
 
-export default Viewport
+const mapStateToProps = state => ({
+  gridSize: state.main.resolution
+})
+
+export default connect(mapStateToProps)(Viewport)

@@ -1,4 +1,5 @@
 import React, { Component } from "react"
+import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import Canvas from "./Canvas"
 import { defaultBehaviour } from "./FilterBehaviours"
@@ -15,9 +16,8 @@ class Filter extends Component {
     }
 
     this.setInputRef = input => {
-      const { size } = this.props
       this.setState(({ inputs }) => ({
-        inputs: [...inputs, { media: input, crop: { x: 0, y: 0 }, size }]
+        inputs: [...inputs, { media: input, crop: { x: 0, y: 0 } }]
       }))
     }
 
@@ -96,4 +96,8 @@ Filter.propTypes = {
   FilterComp: PropTypes.func
 }
 
-export default Filter
+const mapStateToProps = state => ({
+  size: state.main.resolution
+})
+
+export default connect(mapStateToProps)(Filter)

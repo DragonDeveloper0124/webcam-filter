@@ -1,4 +1,5 @@
 import React, { Component } from "react"
+import { connect } from "react-redux"
 import * as THREE from "three"
 const OrbitControls = require("three-orbit-controls")(THREE)
 
@@ -21,7 +22,8 @@ class Renderer extends Component {
     }
     this.state = {
       width: 1280,
-      height: 720
+      height: 720,
+      mounted: false
     }
     this.scene = null
     this.renderer = null
@@ -34,7 +36,9 @@ class Renderer extends Component {
   componentDidMount() {
     window.addEventListener("resize", this.updateSize)
     this.init()
+    this.setup()
     this.renderLoop()
+    this.setState({ mounted: true })
   }
 
   componentWillUnmount() {
@@ -42,14 +46,9 @@ class Renderer extends Component {
   }
 
   render() {
-    const { width, height } = this.state
+    const { mounted, width, height } = this.state
 
-    if (this.cam) {
-      const { gridSize } = this.props
-      const aspect = width / height
-      const def = gridSize * 1.205
-      this.cam.position.z = aspect < 1 ? def / aspect : def
-    }
+    if (mounted) this.updateMediaSize()
 
     return (
       <canvas
@@ -75,14 +74,24 @@ class Renderer extends Component {
     const { canvas } = this
     this.scene = new Scene()
     this.renderer = new WebGLRenderer({ antialias: true, canvas })
-    this.setupCamera()
-    this.updateSize()
 
+    this.cam = new PerspectiveCamera(45, 1, 1, 1000)
+    this.cam.position.z = 1
+    this.camCtrl = new OrbitControls(this.cam)
+    this.camCtrl.enableZoom = false
+    this.camCtrl.rotateSpeed = 0.1
+    this.camCtrl.enableDamping = true
+    this.camCtrl.dampingFactor = 0.2
+    this.camCtrl.enabled = false
+
+    this.updateSize()
+  }
+
+  setup() {
     this.tex = new Texture(this.props.media)
     this.tex.minFilter = THREE.LinearFilter
     this.tex.magFilter = THREE.LinearFilter
-    const { gridSize } = this.props
-    const geo = new PlaneGeometry(gridSize, gridSize)
+    const geo = new PlaneGeometry(1, 1)
     const mat = new MeshBasicMaterial({
       map: this.tex,
       side: DoubleSide,
@@ -93,15 +102,15 @@ class Renderer extends Component {
     this.videoPlane.scale.x = -1
   }
 
-  setupCamera() {
-    this.cam = new PerspectiveCamera(45, 1, 1, 1000)
-    this.cam.position.z = this.props.gridSize * 1.3
-    this.camCtrl = new OrbitControls(this.cam)
-    this.camCtrl.enableZoom = false
-    this.camCtrl.rotateSpeed = 0.1
-    this.camCtrl.enableDamping = true
-    this.camCtrl.dampingFactor = 0.2
-    this.camCtrl.enabled = false
+  updateMediaSize() {
+    const { width, height } = this.state
+    const { gridSize } = this.props
+    const aspect = width / height
+    const def = gridSize * 1.205
+    this.cam.position.z = aspect < 1 ? def / aspect : def
+
+    this.videoPlane.scale.x = -gridSize
+    this.videoPlane.scale.y = gridSize
   }
 
   updateSize = () => {
@@ -120,4 +129,8 @@ class Renderer extends Component {
   }
 }
 
-export default Renderer
+const mapStateToProps = state => ({
+  gridSize: state.main.resolution
+})
+
+export default connect(mapStateToProps)(Renderer)

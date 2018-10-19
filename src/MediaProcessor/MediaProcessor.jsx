@@ -22,9 +22,8 @@ class MediaProcessor extends Component {
     this.state = {
       fps: 30,
       instance: null,
-      fadeFactor: 0.2,
-      frame: -1,
-      streaming: false
+      streakLength: 0.8,
+      frame: -1
     }
 
     this.time = null
@@ -35,18 +34,18 @@ class MediaProcessor extends Component {
   }
 
   render() {
-    const { size, outputRef } = this.props
-    const { instance } = this.state
+    const { outputRef } = this.props
+    const { instance, streakLength } = this.state
 
     return (
       <div>
-        <Filter size={size} instanceRef={this.setInstanceRef} id="base">
+        <Filter instanceRef={this.setInstanceRef} id="base">
           <Media onPlaying={this.startStream} />
         </Filter>
-        <Filter outputRef={outputRef} size={size} behaviour={streak(0.2)}>
-          <Filter size={size} behaviour={blendFrames("difference")}>
+        <Filter behaviour={streak(1 - streakLength)} outputRef={outputRef}>
+          <Filter behaviour={blendFrames("difference")}>
             {instance ? <FilterInstance media={instance} /> : null}
-            <Filter size={size} behaviour={delayFrame()}>
+            <Filter behaviour={delayFrame()}>
               {instance ? <FilterInstance media={instance} /> : null}
             </Filter>
           </Filter>
@@ -71,7 +70,6 @@ class MediaProcessor extends Component {
 }
 
 MediaProcessor.propTypes = {
-  size: PropTypes.number,
   outputRef: PropTypes.func
 }
 

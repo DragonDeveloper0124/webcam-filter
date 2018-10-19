@@ -4,12 +4,13 @@ export const blendFrames = blendMode => ({
     ctx.globalCompositeOperation = blendMode
     for (let i = 0; i < inputs.length; i++) {
       const inp = inputs[i]
+      const inSize = inp.size || size
       ctx.drawImage(
         inp.media,
         inp.crop.x,
         inp.crop.y,
-        inp.size,
-        inp.size,
+        inSize,
+        inSize,
         0,
         0,
         size,

@@ -1,13 +1,14 @@
 export const streak = amount => ({
   update: ({ ctx, size, inputs }) => {
     const inp = inputs[0]
+    const inSize = inp.size || size
     ctx.globalCompositeOperation = "screen"
     ctx.drawImage(
       inp.media,
       inp.crop.x,
       inp.crop.y,
-      inp.size,
-      inp.size,
+      inSize,
+      inSize,
       0,
       0,
       size,
