@@ -1,9 +1,6 @@
 import React, { Component } from "react"
 import { connect } from "react-redux"
-import * as THREE from "three"
-const OrbitControls = require("three-orbit-controls")(THREE)
-
-const {
+import {
   Scene,
   WebGLRenderer,
   PerspectiveCamera,
@@ -11,8 +8,11 @@ const {
   PlaneGeometry,
   MeshBasicMaterial,
   Mesh,
-  DoubleSide
-} = THREE
+  Object3D,
+  DoubleSide,
+  LinearFilter,
+  Euler
+} from "three"
 
 class Renderer extends Component {
   constructor(props) {
@@ -23,7 +23,12 @@ class Renderer extends Component {
     this.state = {
       width: 1280,
       height: 720,
-      mounted: false
+      mounted: false,
+      worldSize: 10,
+      camDistance: 1.4,
+      camRotationAmount: 0.0002,
+      camRotationDamp: 0.1,
+      camTargetRotation: null
     }
     this.scene = null
     this.renderer = null
@@ -35,6 +40,7 @@ class Renderer extends Component {
 
   componentDidMount() {
     window.addEventListener("resize", this.updateSize)
+    window.addEventListener("mousemove", this.updateCamRotation)
     this.init()
     this.setup()
     this.renderLoop()
@@ -43,30 +49,21 @@ class Renderer extends Component {
 
   componentWillUnmount() {
     window.removeEventListener("resize", this.updateSize)
+    window.removeEventListener("mousemove", this.updateCamRotation)
   }
 
   render() {
-    const { mounted, width, height } = this.state
+    const { mounted } = this.state
 
-    if (mounted) this.updateMediaSize()
+    if (mounted) this.updateCam()
 
-    return (
-      <canvas
-        width={width}
-        height={height}
-        ref={this.setCanvasRef}
-        style={{
-          width: `${width}px`,
-          height: `${height}px`
-        }}
-      />
-    )
+    return <canvas ref={this.setCanvasRef} />
   }
 
   renderLoop = () => {
     this.tex.needsUpdate = true
-    this.camCtrl.update()
     this.renderer.render(this.scene, this.cam)
+    this.rotateCam()
     requestAnimationFrame(this.renderLoop)
   }
 
@@ -77,21 +74,20 @@ class Renderer extends Component {
 
     this.cam = new PerspectiveCamera(45, 1, 1, 1000)
     this.cam.position.z = 1
-    this.camCtrl = new OrbitControls(this.cam)
-    this.camCtrl.enableZoom = false
-    this.camCtrl.rotateSpeed = 0.1
-    this.camCtrl.enableDamping = true
-    this.camCtrl.dampingFactor = 0.2
-    this.camCtrl.enabled = false
+    this.camCtrl = new Object3D()
+    this.camCtrl.add(this.cam)
+    this.scene.add(this.camCtrl)
 
     this.updateSize()
   }
 
   setup() {
-    this.tex = new Texture(this.props.media)
-    this.tex.minFilter = THREE.LinearFilter
-    this.tex.magFilter = THREE.LinearFilter
-    const geo = new PlaneGeometry(1, 1)
+    const { worldSize } = this.state
+    const { media, gridSize } = this.props
+    this.tex = new Texture(media)
+    this.tex.minFilter = LinearFilter
+    this.tex.magFilter = LinearFilter
+    const geo = new PlaneGeometry(worldSize, worldSize, gridSize, gridSize)
     const mat = new MeshBasicMaterial({
       map: this.tex,
       side: DoubleSide,
@@ -102,15 +98,11 @@ class Renderer extends Component {
     this.videoPlane.scale.x = -1
   }
 
-  updateMediaSize() {
-    const { width, height } = this.state
-    const { gridSize } = this.props
+  updateCam() {
+    const { width, height, worldSize, camDistance } = this.state
     const aspect = width / height
-    const def = gridSize * 1.205
+    const def = worldSize * camDistance
     this.cam.position.z = aspect < 1 ? def / aspect : def
-
-    this.videoPlane.scale.x = -gridSize
-    this.videoPlane.scale.y = gridSize
   }
 
   updateSize = () => {
@@ -126,6 +118,25 @@ class Renderer extends Component {
         this.renderer.setSize(width, height)
       }
     )
+  }
+
+  updateCamRotation = ({ clientX, clientY }) => {
+    const { width, height, camRotationAmount } = this.state
+    this.setState({
+      camTargetRotation: {
+        x: (clientY - height / 2) * camRotationAmount,
+        y: (clientX - width / 2) * camRotationAmount
+      }
+    })
+  }
+
+  rotateCam() {
+    const { camTargetRotation, camRotationDamp } = this.state
+    if (camTargetRotation) {
+      const { x, y } = this.camCtrl.rotation
+      this.camCtrl.rotation.x += (camTargetRotation.x - x) * camRotationDamp
+      this.camCtrl.rotation.y += (camTargetRotation.y - y) * camRotationDamp
+    }
   }
 }
 
