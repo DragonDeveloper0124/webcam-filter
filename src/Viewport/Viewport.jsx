@@ -18,30 +18,19 @@ const Wrapper = styled.div`
 `
 
 class Viewport extends Component {
-  constructor(props) {
-    super(props)
-
-    this.setMediaRef = media => {
-      this.setState({ media })
-    }
-
-    this.state = { media: null }
-  }
-
   render() {
-    const { gridSize } = this.props
-    const { media } = this.state
+    const { maps } = this.props
     return (
       <Wrapper>
-        <MediaProcessor size={gridSize} outputRef={this.setMediaRef} />
-        {media ? <Renderer media={media} /> : null}
+        <MediaProcessor />
+        {maps.length ? <Renderer maps={maps} /> : null}
       </Wrapper>
     )
   }
 }
 
 const mapStateToProps = state => ({
-  gridSize: state.main.resolution
+  maps: state.main.maps
 })
 
 export default connect(mapStateToProps)(Viewport)

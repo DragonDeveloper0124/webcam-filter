@@ -5,4 +5,13 @@ const setResolution = resolution => ({
   resolution
 })
 
-export const mainActions = { setResolution }
+const registerMap = (id, name, media) => ({
+  type: mainConstants.REGISTER_MAP,
+  map: {
+    id,
+    name,
+    media
+  }
+})
+
+export const mainActions = { setResolution, registerMap }

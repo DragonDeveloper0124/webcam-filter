@@ -1,9 +1,10 @@
 import { mainConstants } from "../_constants"
 
-const { SET_RESOLUTION } = mainConstants
+const { SET_RESOLUTION, REGISTER_MAP } = mainConstants
 
 const initState = {
-  resolution: 16
+  resolution: 10,
+  maps: []
 }
 
 export default (state = initState, action) => {
@@ -12,6 +13,11 @@ export default (state = initState, action) => {
       return {
         ...state,
         resolution: action.resolution
+      }
+    case REGISTER_MAP:
+      return {
+        ...state,
+        maps: [...state.maps, action.map]
       }
     default:
       return state

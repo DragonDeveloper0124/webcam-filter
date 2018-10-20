@@ -3,6 +3,7 @@ import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import Canvas from "./Canvas"
 import { defaultBehaviour } from "./FilterBehaviours"
+import { mainActions } from "../_actions"
 
 class Filter extends Component {
   constructor(props) {
@@ -30,8 +31,9 @@ class Filter extends Component {
   }
 
   componentDidMount() {
-    const { outputRef, instanceRef, size } = this.props
+    const { outputRef, instanceRef, size, dispatch, id, name } = this.props
 
+    if (id) dispatch(mainActions.registerMap(id, name, this.canvas))
     if (outputRef) outputRef(this.canvas)
     if (instanceRef) instanceRef(this.canvas)
     this.inputSize = size

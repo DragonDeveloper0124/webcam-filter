@@ -6,12 +6,10 @@ import {
   PerspectiveCamera,
   Texture,
   PlaneGeometry,
-  MeshBasicMaterial,
+  ShaderMaterial,
   Mesh,
   Object3D,
-  DoubleSide,
-  LinearFilter,
-  Euler
+  NearestFilter
 } from "three"
 
 class Renderer extends Component {
@@ -27,8 +25,7 @@ class Renderer extends Component {
       worldSize: 10,
       camDistance: 1.4,
       camRotationAmount: 0.0002,
-      camRotationDamp: 0.1,
-      camTargetRotation: null
+      camRotationDamp: 0.95
     }
     this.scene = null
     this.renderer = null
@@ -36,11 +33,13 @@ class Renderer extends Component {
     this.camCtrl = null
     this.tex = null
     this.videoPlane = null
+    this.textures = []
+    this.mousePos = null
   }
 
   componentDidMount() {
     window.addEventListener("resize", this.updateSize)
-    window.addEventListener("mousemove", this.updateCamRotation)
+    window.addEventListener("mousemove", this.rotateCam)
     this.init()
     this.setup()
     this.renderLoop()
@@ -49,7 +48,7 @@ class Renderer extends Component {
 
   componentWillUnmount() {
     window.removeEventListener("resize", this.updateSize)
-    window.removeEventListener("mousemove", this.updateCamRotation)
+    window.removeEventListener("mousemove", this.rotateCam)
   }
 
   render() {
@@ -61,9 +60,11 @@ class Renderer extends Component {
   }
 
   renderLoop = () => {
-    this.tex.needsUpdate = true
+    for (let i = 0; i < this.textures.length; i++)
+      this.textures[i].needsUpdate = true
+
     this.renderer.render(this.scene, this.cam)
-    this.rotateCam()
+    this.dampCamRotation()
     requestAnimationFrame(this.renderLoop)
   }
 
@@ -83,19 +84,83 @@ class Renderer extends Component {
 
   setup() {
     const { worldSize } = this.state
-    const { media, gridSize } = this.props
-    this.tex = new Texture(media)
-    this.tex.minFilter = LinearFilter
-    this.tex.magFilter = LinearFilter
-    const geo = new PlaneGeometry(worldSize, worldSize, gridSize, gridSize)
-    const mat = new MeshBasicMaterial({
-      map: this.tex,
-      side: DoubleSide,
+    const { gridSize, maps } = this.props
+
+    const geo = new PlaneGeometry(
+      worldSize,
+      worldSize,
+      gridSize + 1,
+      gridSize + 1
+    )
+
+    const videoMap = maps.find(({ id }) => id === "video").media
+    const videoTex = new Texture(videoMap)
+    this.textures.push(videoTex)
+
+    const dispMap = maps.find(({ id }) => id === "diff").media
+    dispMap.minFilter = NearestFilter
+    dispMap.magFilter = NearestFilter
+    const dispTex = new Texture(dispMap)
+    this.textures.push(dispTex)
+
+    const gradientMap = maps.find(({ id }) => id === "gradient").media
+    const gradientTex = new Texture(gradientMap)
+    this.textures.push(gradientTex)
+
+    const uniforms = colorTex => ({
+      colorTex: { type: "t", value: colorTex },
+      dispTex: { type: "t", value: dispTex },
+      dispAmt: { type: "f", value: 3 }
+    })
+
+    const vert = `
+      varying vec2 vUv;
+      uniform sampler2D dispTex;
+      uniform float dispAmt;
+      void main() {
+        vUv = uv;
+        vec4 col = texture2D(dispTex, uv);
+        float amt = sqrt(col.x * col.x + col.y * col.y + col.z * col.z);
+        vec3 disp = vec3(0, 0, amt * dispAmt);
+        gl_Position = projectionMatrix *
+          modelViewMatrix *
+          vec4(position + disp, 1.0);
+      }
+    `
+
+    const frag = `
+      varying vec2 vUv;
+      uniform sampler2D colorTex;
+      void main() {
+        gl_FragColor = texture2D(colorTex, vUv);
+      }
+    `
+
+    const videoMat = new ShaderMaterial({
+      uniforms: uniforms(videoTex),
+      vertexShader: vert,
+      fragmentShader: frag,
       wireframe: false
     })
-    this.videoPlane = new Mesh(geo, mat)
+    videoMat.visible = false
+
+    const wireframeMat = new ShaderMaterial({
+      uniforms: uniforms(gradientTex),
+      vertexShader: vert,
+      fragmentShader: frag,
+      wireframe: true
+    })
+
+    this.videoPlane = new Mesh(geo, videoMat)
     this.scene.add(this.videoPlane)
+
+    this.wireframePlane = new Mesh(geo, wireframeMat)
+    this.scene.add(this.wireframePlane)
+
     this.videoPlane.scale.x = -1
+
+    this.wireframePlane.position.z = 0.01
+    this.wireframePlane.scale.x = -1
   }
 
   updateCam() {
@@ -120,23 +185,20 @@ class Renderer extends Component {
     )
   }
 
-  updateCamRotation = ({ clientX, clientY }) => {
-    const { width, height, camRotationAmount } = this.state
-    this.setState({
-      camTargetRotation: {
-        x: (clientY - height / 2) * camRotationAmount,
-        y: (clientX - width / 2) * camRotationAmount
-      }
-    })
+  rotateCam = ({ clientX, clientY }) => {
+    const { mousePos } = this
+    const { camRotationAmount } = this.state
+    if (mousePos) {
+      this.camCtrl.rotation.x += (mousePos.y - clientY) * camRotationAmount
+      this.camCtrl.rotation.y += (mousePos.x - clientX) * camRotationAmount
+    }
+    this.mousePos = { x: clientX, y: clientY }
   }
 
-  rotateCam() {
-    const { camTargetRotation, camRotationDamp } = this.state
-    if (camTargetRotation) {
-      const { x, y } = this.camCtrl.rotation
-      this.camCtrl.rotation.x += (camTargetRotation.x - x) * camRotationDamp
-      this.camCtrl.rotation.y += (camTargetRotation.y - y) * camRotationDamp
-    }
+  dampCamRotation() {
+    const { camRotationDamp } = this.state
+    this.camCtrl.rotation.x *= camRotationDamp
+    this.camCtrl.rotation.y *= camRotationDamp
   }
 }
 
