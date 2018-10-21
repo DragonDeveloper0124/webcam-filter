@@ -14,4 +14,13 @@ const registerMap = (id, name, media) => ({
   }
 })
 
-export const mainActions = { setResolution, registerMap }
+const setWireframe = isEnabled => ({
+  type: mainConstants.SET_WIREFRAME,
+  isEnabled
+})
+
+export const mainActions = {
+  setResolution,
+  registerMap,
+  setWireframe
+}

@@ -1,10 +1,11 @@
 import { mainConstants } from "../_constants"
 
-const { SET_RESOLUTION, REGISTER_MAP } = mainConstants
+const { SET_RESOLUTION, REGISTER_MAP, SET_WIREFRAME } = mainConstants
 
 const initState = {
   resolution: 16,
-  textureMaps: []
+  textureMaps: [],
+  wireframeEnabled: true
 }
 
 export default (state = initState, action) => {
@@ -18,6 +19,11 @@ export default (state = initState, action) => {
       return {
         ...state,
         textureMaps: [...state.textureMaps, action.map]
+      }
+    case SET_WIREFRAME:
+      return {
+        ...state,
+        wireframeEnabled: action.isEnabled
       }
     default:
       return state

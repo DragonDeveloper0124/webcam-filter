@@ -1,16 +1,13 @@
 import React, { Component } from "react"
 import styled from "styled-components"
 import { connect } from "react-redux"
+import Plane from "./Plane"
 import {
   Scene,
   WebGLRenderer,
   PerspectiveCamera,
   Texture,
-  PlaneGeometry,
-  ShaderMaterial,
-  Mesh,
-  Object3D,
-  NearestFilter
+  Object3D
 } from "three"
 
 const Wrapper = styled.div`
@@ -34,6 +31,10 @@ class Renderer extends Component {
 
     this.setCanvasRef = el => {
       this.canvas = el
+    }
+
+    this.addMeshToScene = mesh => {
+      this.scene.add(mesh)
     }
 
     this.state = {
@@ -60,7 +61,6 @@ class Renderer extends Component {
     window.addEventListener("resize", this.updateSize)
     window.addEventListener("mousemove", this.rotateCam)
     this.init()
-    this.setup()
     this.renderLoop()
     this.setState({ mounted: true })
   }
@@ -71,20 +71,46 @@ class Renderer extends Component {
   }
 
   render() {
-    const { mounted } = this.state
-
+    const { mounted, worldSize } = this.state
     if (mounted) this.updateCam()
 
     return (
       <Wrapper innerRef={this.setWrapperRef} id="renderer">
         <Canvas innerRef={this.setCanvasRef} />
+        {mounted && (
+          <React.Fragment>
+            <Plane
+              size={worldSize}
+              colorTex={this.getTexture("video")}
+              dispTex={this.getTexture("diff")}
+              onMeshCreated={this.addMeshToScene}
+            />
+            <Plane
+              size={worldSize}
+              colorTex={this.getTexture("gradient")}
+              dispTex={this.getTexture("diff")}
+              wireframe={true}
+              onMeshCreated={this.addMeshToScene}
+            />
+          </React.Fragment>
+        )}
       </Wrapper>
     )
   }
 
+  getTexture(id) {
+    let tex = this.textures.find(tex => tex.id === id)
+    if (!tex) {
+      const map = this.props.maps.find(map => map.id === id).media
+      tex = { id, value: new Texture(map) }
+      this.textures.push(tex)
+    }
+    return tex.value
+  }
+
   renderLoop = () => {
     for (let i = 0; i < this.textures.length; i++)
-      this.textures[i].needsUpdate = true
+      this.textures[i].value.needsUpdate = true
 
     this.renderer.render(this.scene, this.cam)
     this.dampCamRotation()
@@ -95,6 +121,7 @@ class Renderer extends Component {
     const { canvas } = this
     this.scene = new Scene()
     this.renderer = new WebGLRenderer({ antialias: true, canvas })
+    this.renderer.setClearColor(0x000000, 1)
 
     this.cam = new PerspectiveCamera(45, 1, 1, 1000)
     this.cam.position.z = 1
@@ -103,87 +130,6 @@ class Renderer extends Component {
     this.scene.add(this.camCtrl)
 
     this.updateSize()
-  }
-
-  setup() {
-    const { worldSize } = this.state
-    const { gridSize, maps } = this.props
-
-    const geo = new PlaneGeometry(
-      worldSize,
-      worldSize,
-      gridSize + 1,
-      gridSize + 1
-    )
-
-    const videoMap = maps.find(({ id }) => id === "video").media
-    const videoTex = new Texture(videoMap)
-    this.textures.push(videoTex)
-
-    const dispMap = maps.find(({ id }) => id === "diff").media
-    dispMap.minFilter = NearestFilter
-    dispMap.magFilter = NearestFilter
-    const dispTex = new Texture(dispMap)
-    this.textures.push(dispTex)
-
-    const gradientMap = maps.find(({ id }) => id === "gradient").media
-    const gradientTex = new Texture(gradientMap)
-    this.textures.push(gradientTex)
-
-    const uniforms = colorTex => ({
-      colorTex: { type: "t", value: colorTex },
-      dispTex: { type: "t", value: dispTex },
-      dispAmt: { type: "f", value: 3 }
-    })
-
-    const vert = `
-      varying vec2 vUv;
-      uniform sampler2D dispTex;
-      uniform float dispAmt;
-      void main() {
-        vUv = uv;
-        vec4 col = texture2D(dispTex, uv);
-        float amt = sqrt(col.x * col.x + col.y * col.y + col.z * col.z);
-        vec3 disp = vec3(0, 0, amt * dispAmt);
-        gl_Position = projectionMatrix *
-          modelViewMatrix *
-          vec4(position + disp, 1.0);
-      }
-    `
-
-    const frag = `
-      varying vec2 vUv;
-      uniform sampler2D colorTex;
-      void main() {
-        gl_FragColor = texture2D(colorTex, vUv);
-      }
-    `
-
-    const videoMat = new ShaderMaterial({
-      uniforms: uniforms(videoTex),
-      vertexShader: vert,
-      fragmentShader: frag,
-      wireframe: false
-    })
-    videoMat.visible = false
-
-    const wireframeMat = new ShaderMaterial({
-      uniforms: uniforms(gradientTex),
-      vertexShader: vert,
-      fragmentShader: frag,
-      wireframe: true
-    })
-
-    this.videoPlane = new Mesh(geo, videoMat)
-    this.scene.add(this.videoPlane)
-
-    this.wireframePlane = new Mesh(geo, wireframeMat)
-    this.scene.add(this.wireframePlane)
-
-    this.videoPlane.scale.x = -1
-
-    this.wireframePlane.position.z = 0.01
-    this.wireframePlane.scale.x = -1
   }
 
   updateCam() {
@@ -227,7 +173,8 @@ class Renderer extends Component {
 }
 
 const mapStateToProps = state => ({
-  gridSize: state.main.resolution
+  gridSize: state.main.resolution,
+  wireframeEnabled: state.main.wireframeEnabled
 })
 
 export default connect(mapStateToProps)(Renderer)

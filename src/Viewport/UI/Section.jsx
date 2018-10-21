@@ -1,5 +1,6 @@
 import React from "react"
 import styled from "styled-components"
+import { darken } from "polished"
 
 const Wrapper = styled.div`
   width: 100%;
@@ -11,10 +12,10 @@ const Wrapper = styled.div`
 const Title = styled.div`
   width: 100%;
   font-size: 1em;
-  color: #f0f0f0;
-  border-bottom: 1px solid #f0f0f0;
+  color: ${({ theme }) => theme.fontColor};
+  border-bottom: 1px solid ${({ theme }) => darken(0.5, theme.fontColor)};
   padding-bottom: 0.5rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
 `
 
 const Section = ({ title, children }) => (

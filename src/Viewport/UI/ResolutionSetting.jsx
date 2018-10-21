@@ -20,11 +20,11 @@ const Button = styled.button`
     margin-right: 0.5rem;
   }
   &:hover {
-    background-color: ${darken(0.2, "#00b0b0")};
+    background-color: ${({ theme }) => darken(0.2, theme.mainColor)};
   }
   outline: none !important;
-  background-color: ${({ active }) =>
-    active ? "#00b0b0 !important" : "#404040"};
+  background-color: ${({ active, theme }) =>
+    active ? `${theme.mainColor} !important` : "#404040"};
 `
 
 const Option = ({ value, active, onClick }) => (
@@ -43,7 +43,7 @@ class ResolutionSetting extends Component {
     super(props)
 
     this.state = {
-      options: [8, 16, 32, 64]
+      options: [8, 16, 32, 64, 128]
     }
   }
 
