@@ -3,6 +3,7 @@ import { connect } from "react-redux"
 import styled from "styled-components"
 import Renderer from "./Renderer"
 import MediaProcessor from "../MediaProcessor"
+import UI from "./UI"
 
 const Wrapper = styled.div`
   width: 100%;
@@ -11,7 +12,7 @@ const Wrapper = styled.div`
   top: 0;
   left: 0;
   display: flex;
-  flex-flow: row wrap;
+  flex-flow: row nowrap;
   justify-content: center;
   align-items: center;
   background-color: black;
@@ -19,18 +20,19 @@ const Wrapper = styled.div`
 
 class Viewport extends Component {
   render() {
-    const { maps } = this.props
+    const { textureMaps } = this.props
     return (
-      <Wrapper>
+      <Wrapper id="viewport">
         <MediaProcessor />
-        {maps.length ? <Renderer maps={maps} /> : null}
+        {textureMaps.length && <Renderer maps={textureMaps} />}
+        <UI />
       </Wrapper>
     )
   }
 }
 
 const mapStateToProps = state => ({
-  maps: state.main.maps
+  textureMaps: state.main.textureMaps
 })
 
 export default connect(mapStateToProps)(Viewport)

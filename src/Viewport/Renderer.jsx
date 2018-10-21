@@ -1,4 +1,5 @@
 import React, { Component } from "react"
+import styled from "styled-components"
 import { connect } from "react-redux"
 import {
   Scene,
@@ -12,12 +13,29 @@ import {
   NearestFilter
 } from "three"
 
+const Wrapper = styled.div`
+  width: 100%;
+  height: 100%;
+`
+
+const Canvas = styled.canvas`
+  position: absolute;
+  top: 0;
+  left: 0;
+`
+
 class Renderer extends Component {
   constructor(props) {
     super(props)
+
+    this.setWrapperRef = el => {
+      this.wrapper = el
+    }
+
     this.setCanvasRef = el => {
       this.canvas = el
     }
+
     this.state = {
       width: 1280,
       height: 720,
@@ -27,6 +45,7 @@ class Renderer extends Component {
       camRotationAmount: 0.0002,
       camRotationDamp: 0.95
     }
+
     this.scene = null
     this.renderer = null
     this.cam = null
@@ -56,7 +75,11 @@ class Renderer extends Component {
 
     if (mounted) this.updateCam()
 
-    return <canvas ref={this.setCanvasRef} />
+    return (
+      <Wrapper innerRef={this.setWrapperRef} id="renderer">
+        <Canvas innerRef={this.setCanvasRef} />
+      </Wrapper>
+    )
   }
 
   renderLoop = () => {
@@ -171,10 +194,11 @@ class Renderer extends Component {
   }
 
   updateSize = () => {
+    const { clientWidth, clientHeight } = this.wrapper
     this.setState(
       {
-        width: window.innerWidth,
-        height: window.innerHeight
+        width: clientWidth,
+        height: clientHeight
       },
       () => {
         const { width, height } = this.state
