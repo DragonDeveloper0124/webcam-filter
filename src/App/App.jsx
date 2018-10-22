@@ -14,7 +14,6 @@ const Wrapper = styled.div`
   font-family: "Roboto", sans-serif;
   font-weight: 400;
   font-size: 1em;
-  letter-spacing: 0.06em;
 
   position: relative;
   top: 0;

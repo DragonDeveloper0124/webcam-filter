@@ -1,10 +1,12 @@
 import React, { Component } from "react"
+import { connect } from "react-redux"
 import styled from "styled-components"
 import { darken } from "polished"
 import Section from "./Section"
-import ResolutionSetting from "./ResolutionSetting"
 import MenuButton from "./MenuButton"
+import { Select, Option } from "./Select"
 import { sizes } from "../../style"
+import { mainActions } from "../../_actions"
 
 const Wrapper = styled.div`
   max-width: 16rem;
@@ -29,7 +31,7 @@ class UI extends Component {
 
     this.state = {
       open: false,
-      breakPoint: sizes.lg
+      breakPoint: sizes.md
     }
 
     this.lastWindowWidth = window.innerWidth
@@ -47,14 +49,26 @@ class UI extends Component {
 
   render() {
     const { open } = this.state
+    const { resolution } = this.props
     return (
       <Wrapper id="ui" open={open}>
         <MenuButton onClick={this.toggleUI} open={open} />
         <Section title="Resolution">
-          <ResolutionSetting />
+          <Select value={resolution} onChange={this.handleResolutionChange}>
+            <Option value={8} />
+            <Option value={16} selected />
+            <Option value={32} />
+            <Option value={64} />
+            <Option value={128} />
+          </Select>
         </Section>
+        <Section title="Visibility" />
       </Wrapper>
     )
+  }
+
+  handleResolutionChange = value => {
+    this.props.dispatch(mainActions.setResolution(value))
   }
 
   autoClose = () => {
@@ -70,4 +84,8 @@ class UI extends Component {
   }
 }
 
-export default UI
+const mapStateToProps = state => ({
+  resolution: state.main.resolution
+})
+
+export default connect(mapStateToProps)(UI)
