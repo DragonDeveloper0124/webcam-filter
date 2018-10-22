@@ -42,7 +42,7 @@ class Renderer extends Component {
       height: 720,
       mounted: false,
       worldSize: 10,
-      camDistance: 1.4,
+      camDistance: 1.6,
       camRotationAmount: 0.0002,
       camRotationDamp: 0.95
     }

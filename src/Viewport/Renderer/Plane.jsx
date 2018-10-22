@@ -66,6 +66,10 @@ class Plane extends Component {
   }
 }
 
+Plane.defaultProps = {
+  wireframe: false
+}
+
 const mapStateToProps = state => ({
   gridSize: state.main.resolution
 })

@@ -7,7 +7,7 @@ import Viewport from "../Viewport"
 
 injectGlobal`
   @import url('https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,700,700i');
-  body { background: black; }
+  body { background: black !important; }
 `
 
 const Wrapper = styled.div`
