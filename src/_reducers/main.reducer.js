@@ -1,11 +1,17 @@
 import { mainConstants } from "../_constants"
 
-const { SET_RESOLUTION, REGISTER_MAP, SET_WIREFRAME } = mainConstants
+const {
+  SET_RESOLUTION,
+  REGISTER_MAP,
+  REGISTER_MESH,
+  MODIFY_MESH
+} = mainConstants
 
 const initState = {
   resolution: 16,
   textureMaps: [],
-  wireframeEnabled: true
+  wireframeEnabled: true,
+  meshes: []
 }
 
 export default (state = initState, action) => {
@@ -20,10 +26,20 @@ export default (state = initState, action) => {
         ...state,
         textureMaps: [...state.textureMaps, action.map]
       }
-    case SET_WIREFRAME:
+    case REGISTER_MESH:
       return {
         ...state,
-        wireframeEnabled: action.isEnabled
+        meshes: [...state.meshes, action.mesh]
+      }
+    case MODIFY_MESH:
+      const { modification } = action
+      const meshes = state.meshes.map(options => {
+        if (options.id !== modification.id) return options
+        return { ...options, ...modification }
+      })
+      return {
+        ...state,
+        meshes
       }
     default:
       return state

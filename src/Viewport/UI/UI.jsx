@@ -4,6 +4,7 @@ import styled from "styled-components"
 import { darken } from "polished"
 import Section from "./Section"
 import MenuButton from "./MenuButton"
+import Button from "./Button"
 import { Select, Option } from "./Select"
 import { sizes } from "../../style"
 import { mainActions } from "../../_actions"
@@ -49,26 +50,49 @@ class UI extends Component {
 
   render() {
     const { open } = this.state
-    const { resolution } = this.props
+    const { resolution, meshes } = this.props
     return (
       <Wrapper id="ui" open={open}>
         <MenuButton onClick={this.toggleUI} open={open} />
         <Section title="Resolution">
           <Select value={resolution} onChange={this.handleResolutionChange}>
             <Option value={8} />
-            <Option value={16} selected />
+            <Option value={16} />
             <Option value={32} />
             <Option value={64} />
             <Option value={128} />
           </Select>
         </Section>
-        <Section title="Visibility" />
+        <Section title="Visibility">
+          {meshes &&
+            meshes.map(({ id, title, visible }, i) => (
+              <Button
+                key={i}
+                active={visible}
+                onClick={this.toggleVisibility}
+                value={id}
+              >
+                {title}
+              </Button>
+            ))}
+        </Section>
       </Wrapper>
     )
   }
 
   handleResolutionChange = value => {
     this.props.dispatch(mainActions.setResolution(value))
+  }
+
+  toggleVisibility = id => {
+    const { meshes } = this.props
+    const visible = !meshes.find(mesh => mesh.id === id).visible
+    this.props.dispatch(mainActions.modifyMesh({ id, visible }))
+  }
+
+  toggleWireframe = () => {
+    const { dispatch, wireframeEnabled } = this.props
+    dispatch(mainActions.setWireframe(!wireframeEnabled))
   }
 
   autoClose = () => {
@@ -84,8 +108,9 @@ class UI extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  resolution: state.main.resolution
-})
+const mapStateToProps = state => {
+  const { resolution, meshes } = state.main
+  return { resolution, meshes }
+}
 
 export default connect(mapStateToProps)(UI)

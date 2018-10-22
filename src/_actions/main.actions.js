@@ -14,13 +14,19 @@ const registerMap = (id, name, media) => ({
   }
 })
 
-const setWireframe = isEnabled => ({
-  type: mainConstants.SET_WIREFRAME,
-  isEnabled
+const registerMesh = mesh => ({
+  type: mainConstants.REGISTER_MESH,
+  mesh
+})
+
+const modifyMesh = modification => ({
+  type: mainConstants.MODIFY_MESH,
+  modification
 })
 
 export const mainActions = {
   setResolution,
   registerMap,
-  setWireframe
+  registerMesh,
+  modifyMesh
 }

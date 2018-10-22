@@ -80,16 +80,19 @@ class Renderer extends Component {
         {mounted && (
           <React.Fragment>
             <Plane
+              id="video"
               size={worldSize}
               colorTex={this.getTexture("video")}
               dispTex={this.getTexture("diff")}
               onMeshCreated={this.addMeshToScene}
             />
             <Plane
+              id="wireframe"
               size={worldSize}
               colorTex={this.getTexture("gradient")}
               dispTex={this.getTexture("diff")}
               wireframe={true}
+              visible={true}
               onMeshCreated={this.addMeshToScene}
             />
           </React.Fragment>
@@ -173,8 +176,7 @@ class Renderer extends Component {
 }
 
 const mapStateToProps = state => ({
-  gridSize: state.main.resolution,
-  wireframeEnabled: state.main.wireframeEnabled
+  gridSize: state.main.resolution
 })
 
 export default connect(mapStateToProps)(Renderer)

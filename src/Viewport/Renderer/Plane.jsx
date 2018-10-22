@@ -1,5 +1,6 @@
 import { Component } from "react"
 import { connect } from "react-redux"
+import { mainActions } from "../../_actions"
 
 import { PlaneGeometry, ShaderMaterial, Mesh } from "three"
 import shader from "./shader"
@@ -13,7 +14,9 @@ class Plane extends Component {
   }
 
   componentDidMount() {
+    const { dispatch, id, title, visible } = this.props
     this.createPlane()
+    dispatch(mainActions.registerMesh({ id, title, visible }))
   }
 
   render() {
@@ -21,7 +24,8 @@ class Plane extends Component {
   }
 
   componentDidUpdate() {
-    const { gridSize } = this.props
+    const { gridSize, options } = this.props
+    if (options) this.mesh.visible = options.visible || false
     if (this.gridSize !== gridSize) {
       this.updateGeo()
       this.gridSize = gridSize
@@ -70,8 +74,10 @@ Plane.defaultProps = {
   wireframe: false
 }
 
-const mapStateToProps = state => ({
-  gridSize: state.main.resolution
+const mapStateToProps = (state, props) => ({
+  gridSize: state.main.resolution,
+  meshes: state.main.meshes,
+  options: state.main.meshes.find(mesh => mesh.id === props.id)
 })
 
 export default connect(mapStateToProps)(Plane)
