@@ -3,8 +3,7 @@ import { connect } from "react-redux"
 import styled from "styled-components"
 import Renderer from "./Renderer"
 import MediaProcessor from "../MediaProcessor"
-
-import { mainActions } from "../_actions"
+import UI from "./UI"
 
 const Wrapper = styled.div`
   width: 100%;
@@ -13,37 +12,27 @@ const Wrapper = styled.div`
   top: 0;
   left: 0;
   display: flex;
-  flex-flow: row wrap;
+  flex-flow: row nowrap;
   justify-content: center;
   align-items: center;
   background-color: black;
 `
 
 class Viewport extends Component {
-  constructor(props) {
-    super(props)
-
-    this.setMediaRef = media => {
-      this.setState({ media })
-    }
-
-    this.state = { media: null }
-  }
-
   render() {
-    const { gridSize } = this.props
-    const { media } = this.state
+    const { textureMaps } = this.props
     return (
-      <Wrapper>
-        <MediaProcessor size={gridSize} outputRef={this.setMediaRef} />
-        {media ? <Renderer media={media} /> : null}
+      <Wrapper id="viewport">
+        <MediaProcessor />
+        {textureMaps.length && <Renderer maps={textureMaps} />}
+        <UI />
       </Wrapper>
     )
   }
 }
 
 const mapStateToProps = state => ({
-  gridSize: state.main.resolution
+  textureMaps: state.main.textureMaps
 })
 
 export default connect(mapStateToProps)(Viewport)

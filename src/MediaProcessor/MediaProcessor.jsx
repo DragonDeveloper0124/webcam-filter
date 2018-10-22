@@ -2,6 +2,7 @@ import React, { Component } from "react"
 import PropTypes from "prop-types"
 import Filter from "./Filter"
 import Media from "./Media"
+import ColorMap from "./ColorMap"
 import FilterInstance from "./FilterInstance"
 import { delayFrame, blendFrames, streak } from "./FilterBehaviours"
 
@@ -39,10 +40,20 @@ class MediaProcessor extends Component {
 
     return (
       <div>
-        <Filter instanceRef={this.setInstanceRef} id="base">
+        <ColorMap />
+        <Filter
+          instanceRef={this.setInstanceRef}
+          id="video"
+          name="Webcam Stream"
+        >
           <Media onPlaying={this.startStream} />
         </Filter>
-        <Filter behaviour={streak(1 - streakLength)} outputRef={outputRef}>
+        <Filter
+          behaviour={streak(1 - streakLength)}
+          outputRef={outputRef}
+          id="diff"
+          name="Difference Map"
+        >
           <Filter behaviour={blendFrames("difference")}>
             {instance ? <FilterInstance media={instance} /> : null}
             <Filter behaviour={delayFrame()}>
