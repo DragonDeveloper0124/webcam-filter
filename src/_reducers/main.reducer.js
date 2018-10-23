@@ -4,14 +4,17 @@ const {
   SET_RESOLUTION,
   REGISTER_MAP,
   REGISTER_MESH,
-  MODIFY_MESH
+  MODIFY_MESH,
+  REGISTER_GRADIENT,
+  MODIFY_GRADIENT
 } = mainConstants
 
 const initState = {
   resolution: 16,
   textureMaps: [],
   wireframeEnabled: true,
-  meshes: []
+  meshes: [],
+  gradients: []
 }
 
 export default (state = initState, action) => {
@@ -40,6 +43,23 @@ export default (state = initState, action) => {
       return {
         ...state,
         meshes
+      }
+    case REGISTER_GRADIENT:
+      return {
+        ...state,
+        gradients: [...state.gradients, action.gradient]
+      }
+    case MODIFY_GRADIENT:
+      const { color } = action
+      const gradients = state.gradients.map(gradient => {
+        if (gradient.id !== color.id) return gradient
+        const newGradient = { ...gradient }
+        newGradient.colors[color.key] = color.hex
+        return newGradient
+      })
+      return {
+        ...state,
+        gradients
       }
     default:
       return state

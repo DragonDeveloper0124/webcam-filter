@@ -89,7 +89,7 @@ class Renderer extends Component {
             <Plane
               id="wireframe"
               size={worldSize}
-              colorTex={this.getTexture("gradient")}
+              colorTex={this.getTexture("wireframe")}
               dispTex={this.getTexture("diff")}
               wireframe={true}
               visible={true}

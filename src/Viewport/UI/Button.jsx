@@ -7,7 +7,7 @@ const ButtonEl = styled.button`
   color: #f0f0f0;
   border: 0;
   cursor: pointer;
-  transition: 0.2s ease background-color;
+  transition: 0.1s ease background-color;
   &:not(:last-child) {
     margin-right: 0.5rem;
   }
@@ -26,7 +26,7 @@ const Button = ({ value, active, onClick, children }) => (
   <ButtonEl
     active={active}
     onClick={() => {
-      onClick(value)
+      if (onClick) onClick(value)
     }}
   >
     {children || value}

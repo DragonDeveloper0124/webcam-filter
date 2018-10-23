@@ -24,9 +24,21 @@ const modifyMesh = modification => ({
   modification
 })
 
+const registerGradient = (id, label, colors) => ({
+  type: mainConstants.REGISTER_GRADIENT,
+  gradient: { id, label, colors }
+})
+
+const modifyGradient = color => ({
+  type: mainConstants.MODIFY_GRADIENT,
+  color
+})
+
 export const mainActions = {
   setResolution,
   registerMap,
   registerMesh,
-  modifyMesh
+  modifyMesh,
+  registerGradient,
+  modifyGradient
 }

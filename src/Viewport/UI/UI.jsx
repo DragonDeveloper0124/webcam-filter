@@ -5,6 +5,7 @@ import { darken } from "polished"
 import Section from "./Section"
 import MenuButton from "./MenuButton"
 import Button from "./Button"
+import GradientPicker from "./GradientPicker"
 import { Select, Option } from "./Select"
 import { sizes } from "../../style"
 import { mainActions } from "../../_actions"
@@ -20,7 +21,7 @@ const Wrapper = styled.div`
     ${({ theme }) => darken(0.08, theme.bgColor)} 100%
   );
   line-height: normal;
-  transition: 0.2s ease transform;
+  transition: 0.5s ease transform;
   position: absolute;
   transform: ${({ open }) => (open ? "translate(0)" : "translate(16rem)")};
   right: 0;
@@ -50,7 +51,7 @@ class UI extends Component {
 
   render() {
     const { open } = this.state
-    const { resolution, meshes } = this.props
+    const { resolution, meshes, gradients } = this.props
     return (
       <Wrapper id="ui" open={open}>
         <MenuButton onClick={this.toggleUI} open={open} />
@@ -76,12 +77,28 @@ class UI extends Component {
               </Button>
             ))}
         </Section>
+        <Section title="Color">
+          {gradients &&
+            gradients.map(({ id, label, colors }, i) => (
+              <GradientPicker
+                key={i}
+                id={id}
+                colors={colors}
+                label={label}
+                onChange={this.handleGradientChange}
+              />
+            ))}
+        </Section>
       </Wrapper>
     )
   }
 
   handleResolutionChange = value => {
     this.props.dispatch(mainActions.setResolution(value))
+  }
+
+  handleGradientChange = color => {
+    this.props.dispatch(mainActions.modifyGradient(color))
   }
 
   toggleVisibility = id => {
@@ -108,9 +125,9 @@ class UI extends Component {
   }
 }
 
-const mapStateToProps = state => {
-  const { resolution, meshes } = state.main
-  return { resolution, meshes }
+const mapStateToProps = ({ main }) => {
+  const { resolution, meshes, gradients } = main
+  return { resolution, meshes, gradients }
 }
 
 export default connect(mapStateToProps)(UI)

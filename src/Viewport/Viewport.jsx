@@ -6,6 +6,7 @@ import MediaProcessor from "../MediaProcessor"
 import UI from "./UI"
 
 const Wrapper = styled.div`
+  position: relative;
   width: 100%;
   height: 100%;
   position: fixed;

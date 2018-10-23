@@ -11,7 +11,7 @@ const Button = styled.button`
   background: transparent;
   border: 0;
   opacity: 0.2;
-  transition: 0.3s ease opacity;
+  transition: 0.35s ease opacity;
   &:hover {
     opacity: 0.6;
   }
@@ -36,18 +36,18 @@ const Bar = styled.div`
 `
 
 const Bar1 = styled(Bar)`
-  transition: 0.2s ease transform;
+  transition: 0.5s ease transform;
   transform: ${({ open }) =>
     open ? "translate(0, 10px) rotate(45deg)" : "translate(0, 0) rotate(0)"};
 `
 
 const Bar2 = styled(Bar)`
-  transition: 0.2s ease opacity;
+  transition: 0.5s ease opacity;
   opacity: ${({ open }) => (open ? 0 : 1)};
 `
 
 const Bar3 = styled(Bar)`
-  transition: 0.2s ease transform;
+  transition: 0.5s ease transform;
   transform: ${({ open }) =>
     open ? "translate(0, -10px) rotate(-45deg)" : "translate(0, 0) rotate(0)"};
 `
