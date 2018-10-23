@@ -36,7 +36,6 @@ class Plane extends Component {
     const { onMeshCreated, colorTex, dispTex, wireframe } = this.props
 
     const geo = this.createGeo()
-    this.geo = geo
     const mat = new ShaderMaterial({
       uniforms: {
         colorTex: { type: "t", value: colorTex },
