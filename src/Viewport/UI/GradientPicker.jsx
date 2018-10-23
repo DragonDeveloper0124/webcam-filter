@@ -8,6 +8,9 @@ const Wrapper = styled.div`
   flex-flow: row nowrap;
   justify-content: space-between;
   align-items: center;
+  &:not(:last-child) {
+    padding-bottom: 0.5rem;
+  }
 `
 
 const Label = styled.span`

@@ -10,10 +10,10 @@ const Button = styled.button`
   outline: none !important;
   background: transparent;
   border: 0;
-  opacity: 0.2;
+  opacity: 0.4;
   transition: 0.35s ease opacity;
   &:hover {
-    opacity: 0.6;
+    opacity: 0.8;
   }
 `
 
@@ -32,7 +32,7 @@ const Bar = styled.div`
   &:not(:last-child) {
     margin-bottom: 6px;
   }
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 `
 
 const Bar1 = styled(Bar)`

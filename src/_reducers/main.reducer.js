@@ -6,7 +6,8 @@ const {
   REGISTER_MESH,
   MODIFY_MESH,
   REGISTER_GRADIENT,
-  MODIFY_GRADIENT
+  MODIFY_GRADIENT,
+  SET_BACKGROUND_COLOR
 } = mainConstants
 
 const initState = {
@@ -14,7 +15,8 @@ const initState = {
   textureMaps: [],
   wireframeEnabled: true,
   meshes: [],
-  gradients: []
+  gradients: [],
+  backgroundColor: "#000000"
 }
 
 export default (state = initState, action) => {
@@ -60,6 +62,11 @@ export default (state = initState, action) => {
       return {
         ...state,
         gradients
+      }
+    case SET_BACKGROUND_COLOR:
+      return {
+        ...state,
+        backgroundColor: action.color
       }
     default:
       return state

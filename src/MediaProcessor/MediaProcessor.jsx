@@ -40,7 +40,12 @@ class MediaProcessor extends Component {
 
     return (
       <div>
-        <ColorMap id="wireframe" />
+        <ColorMap
+          id="wireframe"
+          label="Wireframe"
+          colors={["#00ffff", "#ff00ff"]}
+        />
+        <ColorMap id="plane" label="Plane" colors={["black", "black"]} />
         <Filter
           instanceRef={this.setInstanceRef}
           id="video"

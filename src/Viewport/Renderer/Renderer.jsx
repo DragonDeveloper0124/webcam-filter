@@ -72,7 +72,10 @@ class Renderer extends Component {
 
   render() {
     const { mounted, worldSize } = this.state
-    if (mounted) this.updateCam()
+    if (mounted) {
+      this.updateCam()
+      this.renderer.setClearColor(this.props.backgroundColor, 1)
+    }
 
     return (
       <Wrapper innerRef={this.setWrapperRef} id="renderer">
@@ -124,7 +127,6 @@ class Renderer extends Component {
     const { canvas } = this
     this.scene = new Scene()
     this.renderer = new WebGLRenderer({ antialias: true, canvas })
-    this.renderer.setClearColor(0x000000, 1)
 
     this.cam = new PerspectiveCamera(45, 1, 1, 1000)
     this.cam.position.z = 1
@@ -176,7 +178,8 @@ class Renderer extends Component {
 }
 
 const mapStateToProps = state => ({
-  gridSize: state.main.resolution
+  gridSize: state.main.resolution,
+  backgroundColor: state.main.backgroundColor
 })
 
 export default connect(mapStateToProps)(Renderer)

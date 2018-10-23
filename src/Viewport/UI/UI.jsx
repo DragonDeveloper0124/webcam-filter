@@ -51,7 +51,7 @@ class UI extends Component {
 
   render() {
     const { open } = this.state
-    const { resolution, meshes, gradients } = this.props
+    const { resolution, meshes, gradients, backgroundColor } = this.props
     return (
       <Wrapper id="ui" open={open}>
         <MenuButton onClick={this.toggleUI} open={open} />
@@ -78,6 +78,12 @@ class UI extends Component {
             ))}
         </Section>
         <Section title="Color">
+          <GradientPicker
+            id="backgroundColor"
+            colors={[backgroundColor]}
+            label="Background"
+            onChange={this.handleBackgroundChange}
+          />
           {gradients &&
             gradients.map(({ id, label, colors }, i) => (
               <GradientPicker
@@ -99,6 +105,10 @@ class UI extends Component {
 
   handleGradientChange = color => {
     this.props.dispatch(mainActions.modifyGradient(color))
+  }
+
+  handleBackgroundChange = ({ hex }) => {
+    this.props.dispatch(mainActions.setBackgroundColor(hex))
   }
 
   toggleVisibility = id => {
@@ -126,8 +136,8 @@ class UI extends Component {
 }
 
 const mapStateToProps = ({ main }) => {
-  const { resolution, meshes, gradients } = main
-  return { resolution, meshes, gradients }
+  const { resolution, meshes, gradients, backgroundColor } = main
+  return { resolution, meshes, gradients, backgroundColor }
 }
 
 export default connect(mapStateToProps)(UI)

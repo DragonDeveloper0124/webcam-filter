@@ -17,9 +17,15 @@ class ColorMap extends Component {
   }
 
   componentDidMount() {
-    const { dispatch, id } = this.props
-    dispatch(mainActions.registerMap(id, "Color Gradient", this.canvas))
-    dispatch(mainActions.registerGradient(id, "Wireframe", ["white", "white"]))
+    const { dispatch, id, label, colors } = this.props
+    dispatch(mainActions.registerMap(id, label || id, this.canvas))
+    dispatch(
+      mainActions.registerGradient(
+        id,
+        label || id,
+        colors || ["white", "white"]
+      )
+    )
     this.draw()
   }
 

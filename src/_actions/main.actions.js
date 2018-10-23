@@ -34,11 +34,17 @@ const modifyGradient = color => ({
   color
 })
 
+const setBackgroundColor = color => ({
+  type: mainConstants.SET_BACKGROUND_COLOR,
+  color
+})
+
 export const mainActions = {
   setResolution,
   registerMap,
   registerMesh,
   modifyMesh,
   registerGradient,
-  modifyGradient
+  modifyGradient,
+  setBackgroundColor
 }
