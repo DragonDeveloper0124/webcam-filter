@@ -23,7 +23,7 @@ class MediaProcessor extends Component {
     this.state = {
       fps: 30,
       instance: null,
-      streakLength: 0.8,
+      streakLength: 0.85,
       frame: -1
     }
 

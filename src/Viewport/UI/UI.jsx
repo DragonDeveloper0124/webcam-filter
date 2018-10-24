@@ -51,7 +51,17 @@ class UI extends Component {
 
   render() {
     const { open } = this.state
-    const { resolution, meshes, gradients, backgroundColor } = this.props
+    const {
+      resolution,
+      meshes,
+      gradients,
+      backgroundColor,
+      planeTexId
+    } = this.props
+
+    const wireframeGradient = gradients.find(({ id }) => id === "wireframe")
+    const planeGradient = gradients.find(({ id }) => id === "plane")
+
     return (
       <Wrapper id="ui" open={open}>
         <MenuButton onClick={this.toggleUI} open={open} />
@@ -59,7 +69,7 @@ class UI extends Component {
           <Select value={resolution} onChange={this.handleResolutionChange}>
             <Option value={8} />
             <Option value={16} />
-            <Option value={32} />
+            <Option value={32} selected />
             <Option value={64} />
             <Option value={128} />
           </Select>
@@ -80,11 +90,30 @@ class UI extends Component {
         <Section title="Color">
           <GradientPicker
             id="backgroundColor"
-            colors={[backgroundColor]}
             label="Background"
+            colors={[backgroundColor]}
+            defaultColors={["#000000"]}
             onChange={this.handleBackgroundChange}
           />
-          {gradients &&
+          {wireframeGradient && (
+            <GradientPicker
+              id="wireframe"
+              label="Wireframe"
+              colors={wireframeGradient.colors}
+              defaultColors={["#00ffff", "#ff00ff"]}
+              onChange={this.handleGradientChange}
+            />
+          )}
+          {planeGradient && (
+            <GradientPicker
+              id="plane"
+              label="Plane"
+              colors={planeGradient.colors}
+              defaultColors={["#303030", "#303030"]}
+              onChange={this.handleGradientChange}
+            />
+          )}
+          {/*gradients &&
             gradients.map(({ id, label, colors }, i) => (
               <GradientPicker
                 key={i}
@@ -93,7 +122,15 @@ class UI extends Component {
                 label={label}
                 onChange={this.handleGradientChange}
               />
-            ))}
+            ))*/}
+        </Section>
+        <Section title="Plane Texture">
+          <Select value={planeTexId} onChange={this.handlePlaneTexChange}>
+            <Option value="plane" selected>
+              Color
+            </Option>
+            <Option value="video">Video</Option>
+          </Select>
         </Section>
       </Wrapper>
     )
@@ -109,6 +146,10 @@ class UI extends Component {
 
   handleBackgroundChange = ({ hex }) => {
     this.props.dispatch(mainActions.setBackgroundColor(hex))
+  }
+
+  handlePlaneTexChange = value => {
+    this.props.dispatch(mainActions.setPlaneTexture(value))
   }
 
   toggleVisibility = id => {
@@ -136,8 +177,8 @@ class UI extends Component {
 }
 
 const mapStateToProps = ({ main }) => {
-  const { resolution, meshes, gradients, backgroundColor } = main
-  return { resolution, meshes, gradients, backgroundColor }
+  const { resolution, meshes, gradients, backgroundColor, planeTexId } = main
+  return { resolution, meshes, gradients, backgroundColor, planeTexId }
 }
 
 export default connect(mapStateToProps)(UI)

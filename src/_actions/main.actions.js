@@ -39,6 +39,11 @@ const setBackgroundColor = color => ({
   color
 })
 
+const setPlaneTexture = texId => ({
+  type: mainConstants.SET_PLANE_TEXTURE,
+  texId
+})
+
 export const mainActions = {
   setResolution,
   registerMap,
@@ -46,5 +51,6 @@ export const mainActions = {
   modifyMesh,
   registerGradient,
   modifyGradient,
-  setBackgroundColor
+  setBackgroundColor,
+  setPlaneTexture
 }

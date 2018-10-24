@@ -72,9 +72,11 @@ class Renderer extends Component {
 
   render() {
     const { mounted, worldSize } = this.state
+    const { planeTexId, backgroundColor } = this.props
+
     if (mounted) {
       this.updateCam()
-      this.renderer.setClearColor(this.props.backgroundColor, 1)
+      this.renderer.setClearColor(backgroundColor, 1)
     }
 
     return (
@@ -83,14 +85,16 @@ class Renderer extends Component {
         {mounted && (
           <React.Fragment>
             <Plane
-              id="video"
+              id="plane"
+              label="Plane"
               size={worldSize}
-              colorTex={this.getTexture("video")}
+              colorTex={this.getTexture(planeTexId)}
               dispTex={this.getTexture("diff")}
               onMeshCreated={this.addMeshToScene}
             />
             <Plane
               id="wireframe"
+              label="Wireframe"
               size={worldSize}
               colorTex={this.getTexture("wireframe")}
               dispTex={this.getTexture("diff")}
@@ -107,7 +111,9 @@ class Renderer extends Component {
   getTexture(id) {
     let tex = this.textures.find(tex => tex.id === id)
     if (!tex) {
-      const map = this.props.maps.find(map => map.id === id).media
+      const { maps } = this.props
+      const map = maps.find(map => map.id === id).media
+      if (!map) return null
       tex = { id, value: new Texture(map) }
       this.textures.push(tex)
     }
@@ -179,7 +185,8 @@ class Renderer extends Component {
 
 const mapStateToProps = state => ({
   gridSize: state.main.resolution,
-  backgroundColor: state.main.backgroundColor
+  backgroundColor: state.main.backgroundColor,
+  planeTexId: state.main.planeTexId
 })
 
 export default connect(mapStateToProps)(Renderer)

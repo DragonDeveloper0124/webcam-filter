@@ -7,7 +7,8 @@ const {
   MODIFY_MESH,
   REGISTER_GRADIENT,
   MODIFY_GRADIENT,
-  SET_BACKGROUND_COLOR
+  SET_BACKGROUND_COLOR,
+  SET_PLANE_TEXTURE
 } = mainConstants
 
 const initState = {
@@ -16,7 +17,8 @@ const initState = {
   wireframeEnabled: true,
   meshes: [],
   gradients: [],
-  backgroundColor: "#000000"
+  backgroundColor: "#000000",
+  planeTexId: "video"
 }
 
 export default (state = initState, action) => {
@@ -67,6 +69,11 @@ export default (state = initState, action) => {
       return {
         ...state,
         backgroundColor: action.color
+      }
+    case SET_PLANE_TEXTURE:
+      return {
+        ...state,
+        planeTexId: action.texId
       }
     default:
       return state

@@ -11,12 +11,15 @@ class Plane extends Component {
     this.gridSize = -1
     this.geo = null
     this.mesh = null
+    this.tex = null
   }
 
   componentDidMount() {
-    const { dispatch, id, title, visible } = this.props
-    this.createPlane()
-    dispatch(mainActions.registerMesh({ id, title, visible }))
+    const { dispatch, id, label, visible, onMeshCreated } = this.props
+    this.mesh = this.createPlane()
+    if (onMeshCreated) onMeshCreated(this.mesh)
+
+    dispatch(mainActions.registerMesh({ id, label, visible }))
   }
 
   render() {
@@ -24,19 +27,39 @@ class Plane extends Component {
   }
 
   componentDidUpdate() {
-    const { gridSize, options } = this.props
+    const { colorTex, gridSize, meshes, id } = this.props
+    const options = meshes.find(mesh => mesh.id === id)
+
     if (options) this.mesh.visible = options.visible || false
+
     if (this.gridSize !== gridSize) {
       this.updateGeo()
       this.gridSize = gridSize
     }
+
+    if (this.tex !== colorTex) {
+      this.mesh.material.uniforms.colorTex.value = colorTex
+      this.tex = colorTex
+    }
   }
 
   createPlane() {
-    const { onMeshCreated, colorTex, dispTex, wireframe } = this.props
+    const { wireframe } = this.props
 
     const geo = this.createGeo()
-    const mat = new ShaderMaterial({
+    const mat = this.createMat()
+
+    const mesh = new Mesh(geo, mat)
+    mesh.scale.x = -1
+    if (wireframe) mesh.position.z = 0.01
+
+    return mesh
+  }
+
+  createMat() {
+    const { colorTex, dispTex, wireframe } = this.props
+    this.tex = colorTex
+    return new ShaderMaterial({
       uniforms: {
         colorTex: { type: "t", value: colorTex },
         dispTex: { type: "t", value: dispTex },
@@ -46,15 +69,11 @@ class Plane extends Component {
       fragmentShader: shader.frag,
       wireframe
     })
+  }
 
-    const mesh = new Mesh(geo, mat)
-    mesh.scale.x = -1
-    if (wireframe) mesh.position.z = 0.01
-    this.mesh = mesh
-
-    geo.dispose()
-
-    if (onMeshCreated) onMeshCreated(mesh)
+  createGeo() {
+    const { size, gridSize } = this.props
+    return new PlaneGeometry(size, size, gridSize, gridSize)
   }
 
   updateGeo() {
@@ -62,21 +81,15 @@ class Plane extends Component {
     this.mesh.geometry = this.createGeo()
     geo.dispose()
   }
-
-  createGeo() {
-    const { size, gridSize } = this.props
-    return new PlaneGeometry(size, size, gridSize, gridSize)
-  }
 }
 
 Plane.defaultProps = {
   wireframe: false
 }
 
-const mapStateToProps = (state, props) => ({
+const mapStateToProps = state => ({
   gridSize: state.main.resolution,
-  meshes: state.main.meshes,
-  options: state.main.meshes.find(mesh => mesh.id === props.id)
+  meshes: state.main.meshes
 })
 
 export default connect(mapStateToProps)(Plane)
