@@ -3,7 +3,6 @@ import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import Canvas from "./Canvas"
 import { defaultBehaviour } from "./FilterBehaviours"
-import { mainActions } from "../_actions"
 
 class Filter extends Component {
   constructor(props) {
@@ -18,24 +17,24 @@ class Filter extends Component {
 
     this.setInputRef = input => {
       this.setState(({ inputs }) => ({
-        inputs: [...inputs, { media: input, crop: { x: 0, y: 0 } }]
+        inputs: [...inputs, { media: input, crop: { x: 0, y: 0 } }],
       }))
     }
 
     this.state = {
       ctx: null,
-      inputs: []
+      inputs: [],
     }
     this.crop = { x: 0, y: 0 }
     this.inputSize = 1
   }
 
   componentDidMount() {
-    const { outputRef, instanceRef, size, dispatch, id, name } = this.props
+    const { onMapReady, outputRef, instanceRef, size } = this.props
 
-    if (id) dispatch(mainActions.registerMap(id, name, this.canvas))
     if (outputRef) outputRef(this.canvas)
     if (instanceRef) instanceRef(this.canvas)
+    if (onMapReady) onMapReady(this.canvas)
     this.inputSize = size
   }
 
@@ -71,7 +70,7 @@ class Filter extends Component {
       if (!child) return
       return React.cloneElement(child, {
         outputRef: this.setInputRef,
-        onResize: this.handleInputResize
+        onResize: this.handleInputResize,
       })
     })
   }
@@ -83,23 +82,23 @@ class Filter extends Component {
     const aspect = width / height
     input.crop = {
       x: round((max(0, aspect - 1) * height) / 2),
-      y: round((-min(0, aspect - 1) * height) / 2)
+      y: round((-min(0, aspect - 1) * height) / 2),
     }
     input.size = width > height ? height : width
   }
 }
 
 Filter.propTypes = {
-  id: PropTypes.string,
   outputRef: PropTypes.func,
   size: PropTypes.number,
   onUpdate: PropTypes.func,
   instanceRef: PropTypes.func,
-  FilterComp: PropTypes.func
+  FilterComp: PropTypes.func,
+  onMapReady: PropTypes.func,
 }
 
 const mapStateToProps = state => ({
-  size: state.main.resolution
+  size: state.main.resolution,
 })
 
 export default connect(mapStateToProps)(Filter)

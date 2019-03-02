@@ -1,7 +1,7 @@
 import React, { Component } from "react"
 import { connect } from "react-redux"
+import PropTypes from "prop-types"
 import Canvas from "./Canvas"
-import { mainActions } from "../_actions"
 
 class ColorMap extends Component {
   constructor(props) {
@@ -16,9 +16,8 @@ class ColorMap extends Component {
   }
 
   componentDidMount() {
-    this.props.dispatch(
-      mainActions.registerMap("gradient", "Color Gradient", this.canvas)
-    )
+    const { onMapReady } = this.props
+    onMapReady(this.canvas)
     this.draw()
   }
 
@@ -33,12 +32,22 @@ class ColorMap extends Component {
   draw() {
     const { ctx } = this
     const { size } = this.state
-    const gradient = ctx.createLinearGradient(0, 0, size, size)
-    gradient.addColorStop(0, "#ff00ff")
-    gradient.addColorStop(1, "#00ffff")
-    ctx.fillStyle = gradient
+    const { colors } = this.props
+
+    const grad = ctx.createLinearGradient(0, 0, size, size)
+    colors.forEach((hex, i) => {
+      grad.addColorStop(i / (colors.length - 1), hex)
+    })
+    ctx.fillStyle = grad
     ctx.fillRect(0, 0, size, size)
   }
 }
 
-export default connect()(ColorMap)
+ColorMap.propTypes = {
+  gradients: PropTypes.array,
+  onMapReady: PropTypes.func,
+}
+
+ColorMap.defaultProps = { gradients: [] }
+
+export default connect(({ maps }) => ({ colors: maps.gradientColors }))(ColorMap)

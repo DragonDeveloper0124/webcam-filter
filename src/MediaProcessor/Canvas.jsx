@@ -8,20 +8,12 @@ const CanvasEl = styled.canvas`
 
 const Canvas = ({ id, size, innerRef }) => {
   const cssSize = `${size}px`
-  return (
-    <CanvasEl
-      id={id}
-      width={size}
-      height={size}
-      style={{ width: cssSize, height: cssSize }}
-      innerRef={innerRef}
-    />
-  )
+  return <CanvasEl id={id} width={size} height={size} style={{ width: cssSize, height: cssSize }} innerRef={innerRef} />
 }
 
 Canvas.propTypes = {
   size: PropTypes.number,
-  innerRef: PropTypes.func
+  innerRef: PropTypes.func,
 }
 
 export default Canvas

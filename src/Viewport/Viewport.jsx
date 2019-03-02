@@ -1,11 +1,11 @@
 import React, { Component } from "react"
-import { connect } from "react-redux"
 import styled from "styled-components"
 import Renderer from "./Renderer"
 import MediaProcessor from "../MediaProcessor"
 import UI from "./UI"
 
 const Wrapper = styled.div`
+  position: relative;
   width: 100%;
   height: 100%;
   position: fixed;
@@ -20,19 +20,14 @@ const Wrapper = styled.div`
 
 class Viewport extends Component {
   render() {
-    const { textureMaps } = this.props
     return (
       <Wrapper id="viewport">
         <MediaProcessor />
-        {textureMaps.length && <Renderer maps={textureMaps} />}
+        <Renderer />
         <UI />
       </Wrapper>
     )
   }
 }
 
-const mapStateToProps = state => ({
-  textureMaps: state.main.textureMaps
-})
-
-export default connect(mapStateToProps)(Viewport)
+export default Viewport

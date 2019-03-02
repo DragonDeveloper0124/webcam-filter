@@ -1,17 +1,12 @@
 import { mainConstants } from "../_constants"
 
-const {
-  SET_RESOLUTION,
-  REGISTER_MAP,
-  REGISTER_MESH,
-  MODIFY_MESH
-} = mainConstants
+const { SET_RESOLUTION, REGISTER_MESH, MODIFY_MESH, SET_BACKGROUND_COLOR } = mainConstants
 
 const initState = {
   resolution: 16,
-  textureMaps: [],
   wireframeEnabled: true,
-  meshes: []
+  meshes: [],
+  backgroundColor: "#000000",
 }
 
 export default (state = initState, action) => {
@@ -19,17 +14,12 @@ export default (state = initState, action) => {
     case SET_RESOLUTION:
       return {
         ...state,
-        resolution: action.resolution
-      }
-    case REGISTER_MAP:
-      return {
-        ...state,
-        textureMaps: [...state.textureMaps, action.map]
+        resolution: action.resolution,
       }
     case REGISTER_MESH:
       return {
         ...state,
-        meshes: [...state.meshes, action.mesh]
+        meshes: [...state.meshes, action.mesh],
       }
     case MODIFY_MESH:
       const { modification } = action
@@ -39,7 +29,12 @@ export default (state = initState, action) => {
       })
       return {
         ...state,
-        meshes
+        meshes,
+      }
+    case SET_BACKGROUND_COLOR:
+      return {
+        ...state,
+        backgroundColor: action.color,
       }
     default:
       return state

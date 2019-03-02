@@ -1,5 +1,7 @@
 import React, { Component } from "react"
+import { connect } from "react-redux"
 import PropTypes from "prop-types"
+import { mapsActions } from "../_actions"
 import Filter from "./Filter"
 import Media from "./Media"
 import ColorMap from "./ColorMap"
@@ -12,7 +14,7 @@ class MediaProcessor extends Component {
 
     this.setInstanceRef = el => {
       this.setState({
-        instance: el
+        instance: el,
       })
     }
 
@@ -23,8 +25,8 @@ class MediaProcessor extends Component {
     this.state = {
       fps: 30,
       instance: null,
-      streakLength: 0.8,
-      frame: -1
+      streakLength: 0.85,
+      frame: -1,
     }
 
     this.time = null
@@ -40,25 +42,14 @@ class MediaProcessor extends Component {
 
     return (
       <div>
-        <ColorMap />
-        <Filter
-          instanceRef={this.setInstanceRef}
-          id="video"
-          name="Webcam Stream"
-        >
+        <ColorMap onMapReady={this.registerGradientMap} />
+        <Filter instanceRef={this.setInstanceRef} onMapReady={this.registerVideoMap}>
           <Media onPlaying={this.startStream} />
         </Filter>
-        <Filter
-          behaviour={streak(1 - streakLength)}
-          outputRef={outputRef}
-          id="diff"
-          name="Difference Map"
-        >
+        <Filter behaviour={streak(1 - streakLength)} outputRef={outputRef} onMapReady={this.registerDispMap}>
           <Filter behaviour={blendFrames("difference")}>
             {instance ? <FilterInstance media={instance} /> : null}
-            <Filter behaviour={delayFrame()}>
-              {instance ? <FilterInstance media={instance} /> : null}
-            </Filter>
+            <Filter behaviour={delayFrame()}>{instance ? <FilterInstance media={instance} /> : null}</Filter>
           </Filter>
         </Filter>
       </div>
@@ -78,10 +69,16 @@ class MediaProcessor extends Component {
 
     this.setState(({ frame, fps }) => ({ frame: (frame + 1) % fps }))
   }
+
+  registerVideoMap = map => this.props.dispatch(mapsActions.registerVideoMap(map))
+
+  registerDispMap = map => this.props.dispatch(mapsActions.registerDispMap(map))
+
+  registerGradientMap = map => this.props.dispatch(mapsActions.registerGradientMap(map))
 }
 
 MediaProcessor.propTypes = {
-  outputRef: PropTypes.func
+  outputRef: PropTypes.func,
 }
 
-export default MediaProcessor
+export default connect()(MediaProcessor)
