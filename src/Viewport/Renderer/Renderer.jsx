@@ -2,13 +2,7 @@ import React, { Component } from "react"
 import styled from "styled-components"
 import { connect } from "react-redux"
 import Plane from "./Plane"
-import {
-  Scene,
-  WebGLRenderer,
-  PerspectiveCamera,
-  Texture,
-  Object3D
-} from "three"
+import { Scene, WebGLRenderer, PerspectiveCamera, Texture, Object3D } from "three"
 
 const Wrapper = styled.div`
   width: 100%;
@@ -44,7 +38,7 @@ class Renderer extends Component {
       worldSize: 10,
       camDistance: 1.6,
       camRotationAmount: 0.0002,
-      camRotationDamp: 0.95
+      camRotationDamp: 0.95,
     }
 
     this.scene = null
@@ -53,7 +47,7 @@ class Renderer extends Component {
     this.camCtrl = null
     this.tex = null
     this.videoPlane = null
-    this.textures = []
+    this.textures = null
     this.mousePos = null
   }
 
@@ -72,32 +66,33 @@ class Renderer extends Component {
 
   render() {
     const { mounted, worldSize } = this.state
-    const { planeTexId, backgroundColor } = this.props
+    const { backgroundColor, videoMap, dispMap, gradientMap } = this.props
 
     if (mounted) {
       this.updateCam()
       this.renderer.setClearColor(backgroundColor, 1)
     }
 
+    const mapsReady = videoMap && dispMap && gradientMap
+    if (mapsReady && !this.textures)
+      this.textures = {
+        video: new Texture(videoMap),
+        disp: new Texture(dispMap),
+        gradient: new Texture(gradientMap),
+      }
+
     return (
       <Wrapper innerRef={this.setWrapperRef} id="renderer">
         <Canvas innerRef={this.setCanvasRef} />
-        {mounted && (
+        {mounted && this.textures && (
           <React.Fragment>
-            <Plane
-              id="plane"
-              label="Plane"
-              size={worldSize}
-              colorTex={this.getTexture(planeTexId)}
-              dispTex={this.getTexture("diff")}
-              onMeshCreated={this.addMeshToScene}
-            />
+            <Plane id="plane" label="Plane" size={worldSize} colorTex={this.textures.disp} dispTex={this.textures.disp} onMeshCreated={this.addMeshToScene} />
             <Plane
               id="wireframe"
               label="Wireframe"
               size={worldSize}
-              colorTex={this.getTexture("wireframe")}
-              dispTex={this.getTexture("diff")}
+              colorTex={this.textures.gradient}
+              dispTex={this.textures.disp}
               wireframe={true}
               visible={true}
               onMeshCreated={this.addMeshToScene}
@@ -107,7 +102,7 @@ class Renderer extends Component {
       </Wrapper>
     )
   }
-
+  /* 
   getTexture(id) {
     let tex = this.textures.find(tex => tex.id === id)
     if (!tex) {
@@ -119,10 +114,10 @@ class Renderer extends Component {
     }
     return tex.value
   }
-
+ */
   renderLoop = () => {
-    for (let i = 0; i < this.textures.length; i++)
-      this.textures[i].value.needsUpdate = true
+    // for (let i = 0; i < this.textures.length; i++) this.textures[i].value.needsUpdate = tru
+    if (this.textures) Object.keys(this.textures).forEach(tex => (this.textures[tex].needsUpdate = true))
 
     this.renderer.render(this.scene, this.cam)
     this.dampCamRotation()
@@ -155,14 +150,14 @@ class Renderer extends Component {
     this.setState(
       {
         width: clientWidth,
-        height: clientHeight
+        height: clientHeight,
       },
       () => {
         const { width, height } = this.state
         this.cam.aspect = width / height
         this.cam.updateProjectionMatrix()
         this.renderer.setSize(width, height)
-      }
+      },
     )
   }
 
@@ -186,7 +181,9 @@ class Renderer extends Component {
 const mapStateToProps = state => ({
   gridSize: state.main.resolution,
   backgroundColor: state.main.backgroundColor,
-  planeTexId: state.main.planeTexId
+  videoMap: state.maps.videoMap,
+  dispMap: state.maps.dispMap,
+  gradientMap: state.maps.gradientMap,
 })
 
 export default connect(mapStateToProps)(Renderer)

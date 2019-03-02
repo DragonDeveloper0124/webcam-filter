@@ -63,11 +63,11 @@ class Plane extends Component {
       uniforms: {
         colorTex: { type: "t", value: colorTex },
         dispTex: { type: "t", value: dispTex },
-        dispAmt: { type: "f", value: 3 }
+        dispAmt: { type: "f", value: 3 },
       },
       vertexShader: shader.vert,
       fragmentShader: shader.frag,
-      wireframe
+      wireframe,
     })
   }
 
@@ -84,12 +84,12 @@ class Plane extends Component {
 }
 
 Plane.defaultProps = {
-  wireframe: false
+  wireframe: false,
 }
 
 const mapStateToProps = state => ({
   gridSize: state.main.resolution,
-  meshes: state.main.meshes
+  meshes: state.main.meshes,
 })
 
 export default connect(mapStateToProps)(Plane)

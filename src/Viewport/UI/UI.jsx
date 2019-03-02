@@ -8,18 +8,14 @@ import Button from "./Button"
 import GradientPicker from "./GradientPicker"
 import { Select, Option } from "./Select"
 import { sizes } from "../../style"
-import { mainActions } from "../../_actions"
+import { mainActions, mapsActions } from "../../_actions"
 
 const Wrapper = styled.div`
   max-width: 16rem;
   height: 100%;
   color: ${({ theme }) => theme.fontColor};
   padding: 1rem 1.6rem;
-  background: linear-gradient(
-    to right,
-    ${({ theme }) => theme.bgColor} 0%,
-    ${({ theme }) => darken(0.08, theme.bgColor)} 100%
-  );
+  background: linear-gradient(to right, ${({ theme }) => theme.bgColor} 0%, ${({ theme }) => darken(0.08, theme.bgColor)} 100%);
   line-height: normal;
   transition: 0.5s ease transform;
   position: absolute;
@@ -33,7 +29,7 @@ class UI extends Component {
 
     this.state = {
       open: false,
-      breakPoint: sizes.md
+      breakPoint: sizes.md,
     }
 
     this.lastWindowWidth = window.innerWidth
@@ -51,16 +47,7 @@ class UI extends Component {
 
   render() {
     const { open } = this.state
-    const {
-      resolution,
-      meshes,
-      gradients,
-      backgroundColor,
-      planeTexId
-    } = this.props
-
-    const wireframeGradient = gradients.find(({ id }) => id === "wireframe")
-    const planeGradient = gradients.find(({ id }) => id === "plane")
+    const { resolution, meshes, backgroundColor, gradientColors } = this.props
 
     return (
       <Wrapper id="ui" open={open}>
@@ -77,80 +64,24 @@ class UI extends Component {
         <Section title="Visibility">
           {meshes &&
             meshes.map(({ id, title, visible }, i) => (
-              <Button
-                key={i}
-                active={visible}
-                onClick={this.toggleVisibility}
-                value={id}
-              >
+              <Button key={i} active={visible} onClick={this.toggleVisibility} value={id}>
                 {title}
               </Button>
             ))}
         </Section>
         <Section title="Color">
-          <GradientPicker
-            id="backgroundColor"
-            label="Background"
-            colors={[backgroundColor]}
-            defaultColors={["#000000"]}
-            onChange={this.handleBackgroundChange}
-          />
-          {wireframeGradient && (
-            <GradientPicker
-              id="wireframe"
-              label="Wireframe"
-              colors={wireframeGradient.colors}
-              defaultColors={["#00ffff", "#ff00ff"]}
-              onChange={this.handleGradientChange}
-            />
-          )}
-          {planeGradient && (
-            <GradientPicker
-              id="plane"
-              label="Plane"
-              colors={planeGradient.colors}
-              defaultColors={["#303030", "#303030"]}
-              onChange={this.handleGradientChange}
-            />
-          )}
-          {/*gradients &&
-            gradients.map(({ id, label, colors }, i) => (
-              <GradientPicker
-                key={i}
-                id={id}
-                colors={colors}
-                label={label}
-                onChange={this.handleGradientChange}
-              />
-            ))*/}
-        </Section>
-        <Section title="Plane Texture">
-          <Select value={planeTexId} onChange={this.handlePlaneTexChange}>
-            <Option value="plane" selected>
-              Color
-            </Option>
-            <Option value="video">Video</Option>
-          </Select>
+          <GradientPicker label="Background" colors={[backgroundColor]} onChange={this.handleBackgroundChange} />
+          <GradientPicker label="Wireframe" colors={gradientColors} onChange={this.handleGradientChange} />
         </Section>
       </Wrapper>
     )
   }
 
-  handleResolutionChange = value => {
-    this.props.dispatch(mainActions.setResolution(value))
-  }
+  handleResolutionChange = value => this.props.dispatch(mainActions.setResolution(value))
 
-  handleGradientChange = color => {
-    this.props.dispatch(mainActions.modifyGradient(color))
-  }
+  handleGradientChange = colors => this.props.dispatch(mapsActions.modifyGradient(colors))
 
-  handleBackgroundChange = ({ hex }) => {
-    this.props.dispatch(mainActions.setBackgroundColor(hex))
-  }
-
-  handlePlaneTexChange = value => {
-    this.props.dispatch(mainActions.setPlaneTexture(value))
-  }
+  handleBackgroundChange = colors => this.props.dispatch(mainActions.setBackgroundColor(colors[0]))
 
   toggleVisibility = id => {
     const { meshes } = this.props
@@ -166,8 +97,7 @@ class UI extends Component {
   autoClose = () => {
     const { innerWidth } = window
     const { breakPoint } = this.state
-    if (innerWidth < breakPoint && this.lastWindowWidth >= breakPoint)
-      this.setState({ open: false })
+    if (innerWidth < breakPoint && this.lastWindowWidth >= breakPoint) this.setState({ open: false })
     this.lastWindowWidth = innerWidth
   }
 
@@ -176,9 +106,10 @@ class UI extends Component {
   }
 }
 
-const mapStateToProps = ({ main }) => {
-  const { resolution, meshes, gradients, backgroundColor, planeTexId } = main
-  return { resolution, meshes, gradients, backgroundColor, planeTexId }
+const mapStateToProps = ({ main, maps }) => {
+  const { resolution, meshes, backgroundColor } = main
+  const { gradientColors } = maps
+  return { resolution, meshes, backgroundColor, gradientColors }
 }
 
 export default connect(mapStateToProps)(UI)

@@ -30,9 +30,7 @@ const Picker = styled.div`
 
 class GradientPicker extends Component {
   componentDidMount() {
-    const { onChange, defaultColors, id } = this.props
-    if (onChange && defaultColors)
-      defaultColors.forEach((hex, key) => onChange({ id, key, hex }))
+    this.colors = [...this.props.colors]
   }
 
   render() {
@@ -53,8 +51,9 @@ class GradientPicker extends Component {
   }
 
   handleColorChange = key => hex => {
-    const { onChange, id } = this.props
-    if (onChange) onChange({ id, key, hex })
+    const { onChange } = this.props
+    this.colors[key] = hex
+    if (onChange) onChange([...this.colors])
   }
 }
 

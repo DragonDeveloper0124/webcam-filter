@@ -16,10 +16,7 @@ class Media extends Component {
   }
 
   componentDidMount() {
-    navigator.getUserMedia =
-      navigator.getUserMedia ||
-      navigator.webkitGetUserMedia ||
-      navigator.mozGetUserMedia
+    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia
 
     const { outputRef, onPlaying } = this.props
     if (outputRef) outputRef(this.media)
@@ -51,14 +48,14 @@ class Media extends Component {
       onResize({
         media: this.media,
         width: this.media.clientWidth,
-        height: this.media.clientHeight
+        height: this.media.clientHeight,
       })
   }
 }
 
 Media.propTypes = {
   outputRef: PropTypes.func,
-  onPlaying: PropTypes.func
+  onPlaying: PropTypes.func,
 }
 
 export default Media
