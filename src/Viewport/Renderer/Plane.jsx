@@ -19,7 +19,7 @@ class Plane extends Component {
     this.mesh = this.createPlane()
     if (onMeshCreated) onMeshCreated(this.mesh)
 
-    dispatch(mainActions.registerMesh({ id, label, visible }))
+    dispatch(mainActions.registerMesh({ id, label, visible, mesh: this.mesh }))
   }
 
   render() {

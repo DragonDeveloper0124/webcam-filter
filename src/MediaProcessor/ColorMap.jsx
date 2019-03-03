@@ -44,7 +44,6 @@ class ColorMap extends Component {
 }
 
 ColorMap.propTypes = {
-  gradients: PropTypes.array,
   onMapReady: PropTypes.func,
 }
 
